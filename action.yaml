@@ -1,0 +1,43 @@
+name: 'Push Actor to Apify'
+description: 'Push and build an Actor to the Apify platform'
+branding:
+  icon: 'upload-cloud'
+  color: 'green'
+inputs:
+  token:
+    description: 'Your Apify token'
+    required: true
+  build-tag:
+    description: 'Build tag to be applied to the successful Actor build. By default, it is taken from the ".actor/actor.json" file.'
+    required: false
+    default: ''
+  version:
+    description: 'Actor version number to which the files should be pushed. By default, it is taken from the ".actor/actor.json" file.'
+    required: false
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - name: Check Runner OS
+      if: ${{ runner.os != 'Linux' }}
+      shell: bash
+      run: |
+        echo "::error title=⛔ error hint::Support Linux Only"
+        exit 1
+    - name: Make sure that Apify CLI is set up
+      shell: bash
+      run:
+        echo "::add-mask::${{ inputs.token }}"
+        npm -g install apify-cli
+        apify login -t ${{ inputs.token }}
+    - name: Push the Actor
+      shell: bash
+      run: |
+        push_args=(--no-prompt)
+        if [ -n "${{ inputs.build-tag }}" ]; then
+          push_args+=(--build-tag=${{ inputs.build-tag }})
+        fi
+        if [ -n "${{ inputs.version }}" ]; then
+          push_args+=(--version=${{ inputs.version }})
+        fi
+        apify push "$push_args[@]"
