@@ -10,8 +10,6 @@ A GitHub action that lets you push an Actor to the Apify platform, for example a
 
 **version**: Actor version number to which the files should be pushed. By default, it is taken from the ".actor/actor.json" file.
 
-**
-
 ## Example usage
 
 ```yaml
