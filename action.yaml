@@ -40,4 +40,4 @@ runs:
         if [ -n "${{ inputs.version }}" ]; then
           push_args+=(--version=${{ inputs.version }})
         fi
-        apify push "$push_args[@]"
+        apify push "${push_args[@]}"
