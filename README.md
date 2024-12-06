@@ -6,6 +6,8 @@ A GitHub action that lets you push an Actor to the Apify platform, for example a
 
 **token**: The Apify token that should be used to authenticate the push operation. See the [Apify integration docs](https://docs.apify.com/platform/integrations/api#api-token) for instructions on how to find it.
 
+**actor-id**: Name or ID of the Actor to push (e.g. "apify/hello-world" or "E2jjCZBezvAZnX8Rb"). If not provided, the command will create or modify the Actor with the name specified in ".actor/actor.json" file. 
+
 **build-tag**: Build tag to be applied to the successful Actor build. By default, it is taken from the ".actor/actor.json" file.
 
 **version**: Actor version number to which the files should be pushed. By default, it is taken from the ".actor/actor.json" file.

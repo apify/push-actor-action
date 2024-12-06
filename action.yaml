@@ -7,6 +7,8 @@ inputs:
   token:
     description: 'Your Apify token'
     required: true
+  actor-id:
+    description: 'Name or ID of the Actor to push (e.g. "apify/hello-world" or "E2jjCZBezvAZnX8Rb"). If not provided, the command will create or modify the Actor with the name specified in ".actor/actor.json" file.'
   build-tag:
     description: 'Build tag to be applied to the successful Actor build. By default, it is taken from the ".actor/actor.json" file.'
     required: false
@@ -33,11 +35,20 @@ runs:
     - name: Push the Actor
       shell: bash
       run: |
-        push_args=(--no-prompt)
+        push_args=()
+
+        if [ -n "${{ inputs.actor-id }}" ]; then
+          push_args+=(${{ inputs.actor-id }})
+        fi
+
         if [ -n "${{ inputs.build-tag }}" ]; then
           push_args+=(--build-tag=${{ inputs.build-tag }})
         fi
+
         if [ -n "${{ inputs.version }}" ]; then
           push_args+=(--version=${{ inputs.version }})
         fi
+
+        push_args+=(--no-prompt)
+
         apify push "${push_args[@]}"
