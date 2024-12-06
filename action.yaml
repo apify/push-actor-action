@@ -9,6 +9,8 @@ inputs:
     required: true
   actor-id:
     description: 'Name or ID of the Actor to push (e.g. "apify/hello-world" or "E2jjCZBezvAZnX8Rb"). If not provided, the command will create or modify the Actor with the name specified in ".actor/actor.json" file.'
+    required: false
+    default: ''
   build-tag:
     description: 'Build tag to be applied to the successful Actor build. By default, it is taken from the ".actor/actor.json" file.'
     required: false
