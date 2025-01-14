@@ -41,13 +41,16 @@ jobs:
 ```
 
 ## Examples of top Actors on Apify Store
+
 There are thousands of pre-built Actors on Apify Store. Check out some of the most popular:
+
 - [Website Content Crawler](https://apify.com/apify/website-content-crawler): Crawl websites and extract text content to feed AI models, LLM applications, vector databases, or RAG pipelines.
 - [Google Search Results Scraper](https://apify.com/apify/google-search-scraper): Extract organic and paid results, AI overviews, ads, queries, People Also Ask, prices, reviews, like a Google SERP API. 
 - [Instagram Scraper](https://apify.com/apify/instagram-scraper): Scrape and download Instagram posts, profiles, places, hashtags, photos, and comments. 
 - [Google Maps Email Extractor](https://apify.com/lukaskrivka/google-maps-with-contact-details): Scrape websites of Google Maps places for contact details and get email addresses, website, location, address, zipcode, phone number, social media links. 
 
 ## Additional resources
+
 - Join 9,000+ web scraping and automation devs on the [Apify Discord](https://discord.com/invite/jyEM2PRvMU).
 - [Apify documentation](https://docs.apify.com/): Platform guides and API references.
 - [Apify open source](https://docs.apify.com/open-source): Apify's open-source libraries, including [Crawlee](https://crawlee.dev/), a web scraping and browser automation library for Node.js and Python.
