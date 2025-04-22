@@ -20,7 +20,7 @@ inputs:
     required: false
     default: ''
   working-directory:
-    description: 'The working directory where the Actor files are located. By default, it is the root of the repository.'
+    description: 'The working directory where the `.actor` folder is located. By default, it is the root of the repository.'
     required: false
     default: ${{ github.workspace }}
 runs:
