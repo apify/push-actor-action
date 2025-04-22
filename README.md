@@ -18,6 +18,8 @@ This GitHub action lets you push an Actor to the Apify platform, e.g. after ever
 
 **version** (optional): Actor version number to which the files should be pushed. By default, it is taken from the ".actor/actor.json" file.
 
+**working-directory** (optional): The working directory where the Actor files are located. By default, it is the root of the repository.
+
 ## Example usage
 
 ```yaml
@@ -38,6 +40,7 @@ jobs:
         uses: apify/push-actor-action@master
         with:
           token: ${{ secrets.APIFY_TOKEN }}
+          working-directory: packages/apify-actor
 ```
 
 ## Examples of top Actors on Apify Store
