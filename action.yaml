@@ -37,6 +37,9 @@ runs:
       with:
         version: 2025.8.13
         mise_toml: |
+          [settings]
+          idiomatic_version_file_enable_tools = []
+
           [tools]
           "ubi:apify/apify-cli" = { version = "1.1.1", matching = "apify", exe = "apify" }
     - name: Make sure that Apify CLI is logged in
@@ -61,7 +64,5 @@ runs:
         if [ -n "${{ inputs.version }}" ]; then
           push_args+=(--version=${{ inputs.version }})
         fi
-
-        push_args+=(--no-prompt)
 
         apify push "${push_args[@]}"
