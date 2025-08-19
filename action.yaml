@@ -32,11 +32,20 @@ runs:
       run: |
         echo "::error title=⛔ error hint::Support Linux Only"
         exit 1
-    - name: Make sure that Apify CLI is set up
+    - name: Install Apify CLI
+      uses: jdx/mise-action@v2
+      with:
+        version: 2025.8.13
+        mise_toml: |
+          [settings]
+          idiomatic_version_file_enable_tools = []
+
+          [tools]
+          "ubi:apify/apify-cli" = { version = "1.1.1", matching = "apify", exe = "apify" }
+    - name: Make sure that Apify CLI is logged in
       shell: bash
       run: |
         echo "::add-mask::${{ inputs.token }}"
-        npm -g install apify-cli
         apify login -t ${{ inputs.token }}
     - name: Push the Actor
       shell: bash
@@ -55,7 +64,5 @@ runs:
         if [ -n "${{ inputs.version }}" ]; then
           push_args+=(--version=${{ inputs.version }})
         fi
-
-        push_args+=(--no-prompt)
 
         apify push "${push_args[@]}"
