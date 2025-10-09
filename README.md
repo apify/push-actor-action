@@ -12,7 +12,7 @@ This GitHub action lets you push an Actor to the Apify platform, e.g. after ever
 
 **token** (required): The Apify token that should be used to authenticate the push operation. See the [Apify integration docs](https://docs.apify.com/platform/integrations/api#api-token) for instructions on how to find it.
 
-**actor-id** (optional): Name or ID of the Actor to push (e.g. "apify/hello-world" or "E2jjCZBezvAZnX8Rb"). If not provided, the command will create or modify the Actor with the name specified in ".actor/actor.json" file. 
+**actor-id** (optional): Name or ID of the Actor to push (e.g. "apify/hello-world" or "E2jjCZBezvAZnX8Rb"). If not provided, the command will create or modify the Actor with the name specified in ".actor/actor.json" file.
 
 **build-tag** (optional): Build tag to be applied to the successful Actor build. By default, it is taken from the ".actor/actor.json" file.
 
@@ -41,6 +41,9 @@ jobs:
         with:
           token: ${{ secrets.APIFY_TOKEN }}
           working-directory: packages/apify-actor
+          secrets: |
+            MY_SECRET: "my_secret_value"
+            ANOTHER_SECRET: 12345
 ```
 
 ## Examples of top Actors on Apify Store
@@ -48,9 +51,9 @@ jobs:
 There are thousands of pre-built Actors on Apify Store. Check out some of the most popular:
 
 - [Website Content Crawler](https://apify.com/apify/website-content-crawler): Crawl websites and extract text content to feed AI models, LLM applications, vector databases, or RAG pipelines.
-- [Google Search Results Scraper](https://apify.com/apify/google-search-scraper): Extract organic and paid results, AI overviews, ads, queries, People Also Ask, prices, reviews, like a Google SERP API. 
-- [Instagram Scraper](https://apify.com/apify/instagram-scraper): Scrape and download Instagram posts, profiles, places, hashtags, photos, and comments. 
-- [Google Maps Email Extractor](https://apify.com/lukaskrivka/google-maps-with-contact-details): Scrape websites of Google Maps places for contact details and get email addresses, website, location, address, zipcode, phone number, social media links. 
+- [Google Search Results Scraper](https://apify.com/apify/google-search-scraper): Extract organic and paid results, AI overviews, ads, queries, People Also Ask, prices, reviews, like a Google SERP API.
+- [Instagram Scraper](https://apify.com/apify/instagram-scraper): Scrape and download Instagram posts, profiles, places, hashtags, photos, and comments.
+- [Google Maps Email Extractor](https://apify.com/lukaskrivka/google-maps-with-contact-details): Scrape websites of Google Maps places for contact details and get email addresses, website, location, address, zipcode, phone number, social media links.
 
 ## Additional resources
 
