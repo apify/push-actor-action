@@ -68,7 +68,7 @@ runs:
         secrets='${{ inputs.secrets }}'
         if [ -n "$secrets" ]; then
           # Parse JSON and iterate through key-value pairs
-          echo "$secrets" | jq -r 'to_entries[] | "\(.key)=\(.value)"' | while IFS='=' read -r key value; do
+          echo "$secrets" | jq -r 'to_entries[] | "\(.key)=\(.value | @json)"' | while IFS='=' read -r key value; do
             echo "::add-mask::$value"
             echo "Setting secret: $key"
             apify secrets add "$key" "$value"
