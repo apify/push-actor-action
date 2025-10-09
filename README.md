@@ -20,6 +20,8 @@ This GitHub action lets you push an Actor to the Apify platform, e.g. after ever
 
 **working-directory** (optional): The working directory where the `.actor` folder is located. By default, it is the root of the repository.
 
+**secrets** (optional): A JSON object of secret names and values to be set using apify secrets add command. Each key-value pair will be added as a secret.
+
 ## Example usage
 
 ```yaml
@@ -42,8 +44,10 @@ jobs:
           token: ${{ secrets.APIFY_TOKEN }}
           working-directory: packages/apify-actor
           secrets: |
-            MY_SECRET: "my_secret_value"
-            ANOTHER_SECRET: 12345
+            {
+              "MY_SECRET": "my_secret_value",
+              "ANOTHER_SECRET": "12345"
+            }
 ```
 
 ## Examples of top Actors on Apify Store

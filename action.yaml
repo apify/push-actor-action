@@ -24,14 +24,17 @@ inputs:
     required: false
     default: ${{ github.workspace }}
   secrets:
-    description: 'A YAML map of secret names and values to be set using apify secrets add command. Each key-value pair will be added as a secret.
+    description: 'A JSON object of secret names and values to be set using apify secrets add command. Each key-value pair will be added as a secret.
 
     Example:
     ```yaml
     with:
       secrets: |
-        MY_SECRET: "my_secret_value"
-    '
+        {
+          "MY_SECRET": "my_secret_value",
+          "ANOTHER_SECRET": "12345"
+        }
+    ```'
     required: false
     default: ''
 runs:
@@ -64,29 +67,12 @@ runs:
       run: |
         secrets='${{ inputs.secrets }}'
         if [ -n "$secrets" ]; then
-          echo "$secrets" | while IFS= read -r line; do
-            # Skip empty lines and comments
-            if [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]]; then
-              continue
-            fi
-
-            # Parse key: value format
-            if [[ "$line" =~ ^[[:space:]]*([^:]+):[[:space:]]*(.*)$ ]]; then
-              key="${BASH_REMATCH[1]}"
-              value="${BASH_REMATCH[2]}"
-
-              # Trim whitespace
-              key=$(echo "$key" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-              value=$(echo "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-              # Remove quotes if present
-              value=$(echo "$value" | sed 's/^["'\'']*//;s/["'\'']*$//')
-
-              echo "::add-mask::$value"
-              echo "Setting secret: $key"
-              apify secrets add "$key" "$value"
-            fi
-          done <<< "$secrets"
+          # Parse JSON and iterate through key-value pairs
+          echo "$secrets" | jq -r 'to_entries[] | "\(.key)=\(.value)"' | while IFS='=' read -r key value; do
+            echo "::add-mask::$value"
+            echo "Setting secret: $key"
+            apify secrets add "$key" "$value"
+          done
         fi
     - name: Push the Actor
       shell: bash
