@@ -79,4 +79,9 @@ runs:
         build_json=$(apify push --json "${push_args[@]}")
         echo "build-id=$(echo "$build_json" | jq -r '.id')" >> "$GITHUB_OUTPUT"
         echo "build-number=$(echo "$build_json" | jq -r '.buildNumber')" >> "$GITHUB_OUTPUT"
-        echo "build-status=$(echo "$build_json" | jq -r '.status')" >> "$GITHUB_OUTPUT"
+        build_status=$(echo "$build_json" | jq -r '.status')
+        echo "build-status=$build_status" >> "$GITHUB_OUTPUT"
+        if [ "$build_status" != "SUCCEEDED" ]; then
+          echo "::error::Actor build finished with status: $build_status"
+          exit 1
+        fi
