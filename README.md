@@ -20,6 +20,14 @@ This GitHub action lets you push an Actor to the Apify platform, e.g. after ever
 
 **working-directory** (optional): The working directory where the `.actor` folder is located. By default, it is the root of the repository.
 
+## Outputs
+
+**build-id**: ID of the Actor build triggered by the push.
+
+**build-number**: Version number of the Actor build.
+
+**build-status**: Status of the Actor build (e.g. `SUCCEEDED`, `FAILED`).
+
 ## Example usage
 
 ```yaml

@@ -23,6 +23,16 @@ inputs:
     description: 'The working directory where the `.actor` folder is located. By default, it is the root of the repository.'
     required: false
     default: ${{ github.workspace }}
+outputs:
+  build-id:
+    description: 'ID of the Actor build triggered by the push'
+    value: ${{ steps.push.outputs.build-id }}
+  build-number:
+    description: 'Version number of the Actor build'
+    value: ${{ steps.push.outputs.build-number }}
+  build-status:
+    description: 'Status of the Actor build (e.g. SUCCEEDED, FAILED)'
+    value: ${{ steps.push.outputs.build-status }}
 runs:
   using: 'composite'
   steps:
@@ -48,6 +58,7 @@ runs:
         echo "::add-mask::${{ inputs.token }}"
         apify login -t ${{ inputs.token }}
     - name: Push the Actor
+      id: push
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
@@ -65,4 +76,7 @@ runs:
           push_args+=(--version=${{ inputs.version }})
         fi
 
-        apify push "${push_args[@]}"
+        build_json=$(apify push --json "${push_args[@]}")
+        echo "build-id=$(echo "$build_json" | jq -r '.id')" >> "$GITHUB_OUTPUT"
+        echo "build-number=$(echo "$build_json" | jq -r '.buildNumber')" >> "$GITHUB_OUTPUT"
+        echo "build-status=$(echo "$build_json" | jq -r '.status')" >> "$GITHUB_OUTPUT"
