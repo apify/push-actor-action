@@ -45,10 +45,14 @@ jobs:
           node-version: 22
 
       - name: Push to Apify
+        id: push
         uses: apify/push-actor-action@master
         with:
           token: ${{ secrets.APIFY_TOKEN }}
           working-directory: packages/apify-actor
+
+      - name: Print build details
+        run: echo "Build ${{ steps.push.outputs.build-id }} finished with status ${{ steps.push.outputs.build-status }}"
 ```
 
 ## Examples of top Actors on Apify Store
