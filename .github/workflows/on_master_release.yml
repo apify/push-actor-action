@@ -5,7 +5,12 @@ on:
     branches: [master]
 
 jobs:
+  checks:
+    name: CI checks
+    uses: ./.github/workflows/_checks.yml
+
   release:
+    needs: checks
     name: Create release
     runs-on: ubuntu-latest
     permissions:

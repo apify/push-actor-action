@@ -1,0 +1,19 @@
+name: CI checks
+
+on:
+  workflow_call:
+
+jobs:
+  actionlint:
+    name: Action lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rhysd/action-actionlint@v1
+
+  typos:
+    name: Spell check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: crate-ci/typos@master
