@@ -65,10 +65,22 @@ runs:
           push_args+=(--version=${{ inputs.version }})
         fi
 
-        build_json=$(apify push --json "${push_args[@]}")
-        echo "build-id=$(echo "$build_json" | jq -r '.id')" >> "$GITHUB_OUTPUT"
-        echo "build-number=$(echo "$build_json" | jq -r '.buildNumber')" >> "$GITHUB_OUTPUT"
-        build_status=$(echo "$build_json" | jq -r '.status')
+        build_json_file=$(mktemp)
+        # Write JSON to a temp file instead of capturing in a bash variable
+        # to avoid truncation issues with large outputs (e.g. embedded readmes)
+        apify push --json "${push_args[@]}" > "$build_json_file"
+
+        if ! jq empty "$build_json_file" 2>/dev/null; then
+          echo "::error::Failed to parse JSON output from 'apify push'. Output was:"
+          cat "$build_json_file" >&2
+          rm -f "$build_json_file"
+          exit 1
+        fi
+
+        echo "build-id=$(jq -r '.id' "$build_json_file")" >> "$GITHUB_OUTPUT"
+        echo "build-number=$(jq -r '.buildNumber' "$build_json_file")" >> "$GITHUB_OUTPUT"
+        build_status=$(jq -r '.status' "$build_json_file")
+        rm -f "$build_json_file"
         echo "build-status=$build_status" >> "$GITHUB_OUTPUT"
         if [ "$build_status" != "SUCCEEDED" ]; then
           echo "::error::Actor build finished with status: $build_status"
