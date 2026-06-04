@@ -68,7 +68,17 @@ runs:
         build_json_file=$(mktemp)
         # Write JSON to a temp file instead of capturing in a bash variable
         # to avoid truncation issues with large outputs (e.g. embedded readmes)
-        apify push --json "${push_args[@]}" > "$build_json_file"
+        #
+        # --wait-for-finish makes `apify push` block until the build reaches a
+        # terminal status. Without it, the command can return while the build is
+        # still RUNNING, making the status check below fail spuriously.
+        #
+        # An explicit value (in seconds) is required: passing the bare
+        # `--wait-for-finish` flag is ambiguous to the CLI's argument parser and
+        # would swallow the next positional (the actor-id) as its value. 999999s
+        # (~11.5 days) far exceeds any GitHub Actions or Apify build timeout, so
+        # in practice it waits until the build finishes.
+        apify push --json --wait-for-finish=999999 "${push_args[@]}" > "$build_json_file"
 
         if ! jq empty "$build_json_file" 2>/dev/null; then
           echo "::error::Failed to parse JSON output from 'apify push'. Output was:"
