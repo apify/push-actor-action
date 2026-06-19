@@ -43,7 +43,7 @@ runs:
         echo "::error title=⛔ error hint::Support Linux Only"
         exit 1
     - name: Set up Apify CLI
-      uses: apify/setup-apify-cli-action@v1.0.0
+      uses: apify/setup-apify-cli-action@v1
       with:
         token: ${{ inputs.token }}
     - name: Push the Actor
