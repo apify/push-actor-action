@@ -50,48 +50,81 @@ runs:
       id: push
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        INPUT_ACTOR_ID: ${{ inputs.actor-id }}
+        INPUT_BUILD_TAG: ${{ inputs.build-tag }}
+        INPUT_VERSION: ${{ inputs.version }}
       run: |
         push_args=()
 
-        if [ -n "${{ inputs.actor-id }}" ]; then
-          push_args+=(${{ inputs.actor-id }})
+        if [ -n "$INPUT_ACTOR_ID" ]; then
+          push_args+=("$INPUT_ACTOR_ID")
         fi
 
-        if [ -n "${{ inputs.build-tag }}" ]; then
-          push_args+=(--build-tag=${{ inputs.build-tag }})
+        if [ -n "$INPUT_BUILD_TAG" ]; then
+          push_args+=(--build-tag="$INPUT_BUILD_TAG")
         fi
 
-        if [ -n "${{ inputs.version }}" ]; then
-          push_args+=(--version=${{ inputs.version }})
+        if [ -n "$INPUT_VERSION" ]; then
+          push_args+=(--version="$INPUT_VERSION")
         fi
 
         build_json_file=$(mktemp)
+        trap 'rm -f "$build_json_file"' EXIT
+
         # Write JSON to a temp file instead of capturing in a bash variable
         # to avoid truncation issues with large outputs (e.g. embedded readmes)
         #
         # --wait-for-finish makes `apify push` block until the build reaches a
         # terminal status. Without it, the command can return while the build is
-        # still RUNNING, making the status check below fail spuriously.
+        # still RUNNING, and the status check below would reject it.
         #
         # An explicit value (in seconds) is required: passing the bare
         # `--wait-for-finish` flag is ambiguous to the CLI's argument parser and
         # would swallow the next positional (the actor-id) as its value. 999999s
         # (~11.5 days) far exceeds any GitHub Actions or Apify build timeout, so
         # in practice it waits until the build finishes.
-        apify push --json --wait-for-finish=999999 "${push_args[@]}" > "$build_json_file"
+        #
+        # The exit code is the authoritative outcome; the JSON only enriches the
+        # outputs and the error message. `-e` would abort here before we can
+        # report anything useful, so capture the code by hand.
+        push_exit_code=0
+        apify push --json --wait-for-finish=999999 "${push_args[@]}" > "$build_json_file" || push_exit_code=$?
 
-        if ! jq empty "$build_json_file" 2>/dev/null; then
-          echo "::error::Failed to parse JSON output from 'apify push'. Output was:"
+        # `apify push --json` printed a flat build object up to CLI 1.7.x and an
+        # {ok, actor, build} envelope since 1.8.0 (apify/apify-cli#1199), so read
+        # both spellings. Fields that resolve to nothing stay empty instead of
+        # leaking the string "null" into the outputs.
+        read_field() {
+          jq -r "($1) // empty" "$build_json_file" 2>/dev/null || true
+        }
+
+        build_id=$(read_field '.build.id // .id')
+        build_number=$(read_field '.build.number // .buildNumber')
+        build_status=$(read_field '.build.status // .status')
+        error_message=$(read_field '.error.message')
+
+        {
+          echo "build-id=$build_id"
+          echo "build-number=$build_number"
+          echo "build-status=$build_status"
+        } >> "$GITHUB_OUTPUT"
+
+        if [ "$push_exit_code" -ne 0 ]; then
+          echo "::error::apify push failed with exit code ${push_exit_code}${build_status:+ (build status: ${build_status})}${error_message:+: ${error_message}}"
           cat "$build_json_file" >&2
-          rm -f "$build_json_file"
-          exit 1
+          exit "$push_exit_code"
         fi
 
-        echo "build-id=$(jq -r '.id' "$build_json_file")" >> "$GITHUB_OUTPUT"
-        echo "build-number=$(jq -r '.buildNumber' "$build_json_file")" >> "$GITHUB_OUTPUT"
-        build_status=$(jq -r '.status' "$build_json_file")
-        rm -f "$build_json_file"
-        echo "build-status=$build_status" >> "$GITHUB_OUTPUT"
+        # The push itself succeeded, so an unreadable or reshaped payload is a
+        # reporting problem, not a build problem — warn, but keep the job green.
+        # Failing here is exactly how CLI 1.8.0 turned successful pushes red.
+        if [ -z "$build_status" ]; then
+          echo "::warning::Could not read the build status from 'apify push --json'; trusting its exit code instead. The output format may have changed."
+          cat "$build_json_file" >&2
+          exit 0
+        fi
+
         if [ "$build_status" != "SUCCEEDED" ]; then
           echo "::error::Actor build finished with status: $build_status"
           exit 1

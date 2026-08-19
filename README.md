@@ -28,6 +28,8 @@ This GitHub action lets you push an Actor to the Apify platform, e.g. after ever
 
 **build-status**: Status of the Actor build (e.g. `SUCCEEDED`, `FAILED`).
 
+The outputs are parsed from `apify push --json`. If that output cannot be read — for example because the CLI changed its format — the outputs are empty and the step reports a warning, but the push is still judged by the CLI's exit code.
+
 ## Example usage
 
 ```yaml
